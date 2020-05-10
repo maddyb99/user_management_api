@@ -83,6 +83,29 @@ res.status(400).send('User does not exists')
     })
 })
 
+userModule.post('/exist/',async(req,res)=>{
+    console.log(Object.values(req.body['numbers']).length)
+    // const count=Object.values(req.body['numbers']).length
+    let mobileList=[]
+    let index=0
+    Object.values(req.body['numbers']).forEach(async(mobile)=>{
+        try{
+            index++
+            await admin.auth().getUserByPhoneNumber(mobile)
+            mobileList.push(mobile)
+        // checked++
+            console.log(index)
+            if(index+1===Object.values(req.body['numbers']).length)
+                if(mobileList.length===0)
+                    res.status(400).send(`Cannot get users`)
+                else
+                    res.status(200).send(mobileList)
+        }
+        catch(error){console.log(error)}
+    });
+    // while(checked+1!==count);
+})
+
 // View all users
 userModule.get('/', (req, res) => {
     firebaseHelper.firestore
