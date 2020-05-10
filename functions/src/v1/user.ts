@@ -4,14 +4,14 @@ import { db } from '../index'
 // import { admin } from 'firebase-admin/lib/database';
 // import * from admin
 // import { apiKey } from './main';
-const admin= require('firebase-admin');
+const admin = require('firebase-admin');
 
 class User {
     constructor(
         public name: String = '',
         public mobile: number = 0,
         public uid: string = '',
-        public profilePic: String =''
+        public profilePic: String = ''
     ) { }
 }
 
@@ -23,9 +23,8 @@ const userModule = express()
 
 // Add new user
 userModule.post('/', async (req, res) => {
-    const exist=await firebaseHelper.firestore.checkDocumentExists(db,userCollection,req.body['uid'])
-    if(exist===true)
-    {
+    const exist = await firebaseHelper.firestore.checkDocumentExists(db, userCollection, req.body['uid'])
+    if (exist === true) {
         res.status(403).send(`Forbidden! User already exists`)
         return
     }
@@ -53,7 +52,7 @@ userModule.patch('/:userId', async (req, res) => {
         res.status(400).send('Invalid request body!')
         return
     }
-    if (req.body['uid']!==req.params.userId) {
+    if (req.body['uid'] !== req.params.userId) {
         res.status(403).send('Forbidden request!')
         return
     }
@@ -71,38 +70,38 @@ userModule.get('/:userId', async (req, res) => {
         .catch(error => res.status(400).send(`Cannot get user: ${error}`))
 })
 
-userModule.get('/exist/:mobile',async(req,res)=>{
-    admin.auth().getUserByPhoneNumber(req.params.mobile).then(function(userRecord){
-console.log('exists')
-res.status(200).send('User exists')
-    }).catch(function(error){
+userModule.get('/exist/:mobile', async (req, res) => {
+    admin.auth().getUserByPhoneNumber(req.params.mobile).then(function (userRecord) {
+        console.log('exists')
+        res.status(200).send('User exists')
+    }).catch(function (error) {
         console.log('does not exists')
-        
-res.status(400).send('User does not exists')
+
+        res.status(400).send('User does not exists')
 
     })
 })
 
-userModule.post('/exist/',async(req,res)=>{
+userModule.post('/exist/', async (req, res) => {
     console.log(Object.values(req.body['numbers']).length)
     // const count=Object.values(req.body['numbers']).length
-    let mobileList=[]
-    let index=0
-    Object.values(req.body['numbers']).forEach(async(mobile)=>{
-        try{
-            index++
-            await admin.auth().getUserByPhoneNumber(mobile)
-            mobileList.push(mobile)
-        // checked++
-            console.log(index)
-            if(index+1===Object.values(req.body['numbers']).length)
-                if(mobileList.length===0)
-                    res.status(400).send(`Cannot get users`)
-                else
-                    res.status(200).send(mobileList)
-        }
-        catch(error){console.log(error)}
+    let mobileList = []
+    const promiseArray = [];
+    Object.values(req.body['numbers']).forEach((mobile) => {
+        // try {
+            promiseArray.push(admin.auth().getUserByPhoneNumber(mobile).then((val) => mobileList.push(mobile)).catch((err) => console.log(err)))
+
+            // checked++
+
+        // }
+        // catch (error) { console.log(error) }
     });
+    const ans = await Promise.all(promiseArray);
+    console.log(ans)
+    if (mobileList.length === 0)
+        res.status(400).send(`Cannot get users`)
+    else
+        res.status(200).send(mobileList)
     // while(checked+1!==count);
 })
 
@@ -119,8 +118,8 @@ userModule.get('/', (req, res) => {
 
 // Delete a user
 userModule.delete('/:userId', async (req, res) => {
-    const exist=await firebaseHelper.firestore.checkDocumentExists(db,userCollection,req.params.userId)
-    if(exist){
+    const exist = await firebaseHelper.firestore.checkDocumentExists(db, userCollection, req.params.userId)
+    if (exist) {
         // const user = await firebaseHelper.firestore.getDocument(db,userCollection,req.params.userId)
         // const events=user['events']
         // Object.values(events).forEach(async (element) => {
