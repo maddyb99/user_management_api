@@ -83,15 +83,21 @@ userModule.get('/exist/:mobile', async (req, res) => {
 })
 
 userModule.post('/exist/', async (req, res) => {
+
+    console.log(req.body)
+    console.log(req.body['numbers'])
     console.log(Object.values(req.body['numbers']).length)
     // const count=Object.values(req.body['numbers']).length
     let mobileList = []
     const promiseArray = [];
     Object.values(req.body['numbers']).forEach((mobile) => {
         // try {
-            promiseArray.push(admin.auth().getUserByPhoneNumber(mobile).then((val) => mobileList.push(mobile)).catch((err) => console.log(err)))
+        promiseArray.push(admin.auth().getUserByPhoneNumber(mobile).then((val) => mobileList.push(mobile)).catch((err) =>
+            null
+            // console.log(err)
+        ))
 
-            // checked++
+        // checked++
 
         // }
         // catch (error) { console.log(error) }
