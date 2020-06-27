@@ -1,10 +1,6 @@
 import * as firebaseHelper from 'firebase-functions-helper'
 import * as express from 'express'
-import { db } from '../index'
-// import { admin } from 'firebase-admin/lib/database';
-// import * from admin
-// import { apiKey } from './main';
-const admin = require('firebase-admin');
+import { db,auth } from './main'
 
 class User {
     constructor(
@@ -71,7 +67,7 @@ userModule.get('/:userId', async (req, res) => {
 })
 
 userModule.get('/exist/:mobile', async (req, res) => {
-    admin.auth().getUserByPhoneNumber(req.params.mobile).then(function (userRecord) {
+    auth.getUserByPhoneNumber(req.params.mobile).then(function (userRecord) {
         console.log('exists')
         res.status(200).send('User exists')
     }).catch(function (error) {
@@ -90,9 +86,9 @@ userModule.post('/exist/', async (req, res) => {
     // const count=Object.values(req.body['numbers']).length
     let mobileList = []
     const promiseArray = [];
-    Object.values(req.body['numbers']).forEach((mobile) => {
+    Object.values(req.body['numbers']).forEach((mobile:string) => {
         // try {
-        promiseArray.push(admin.auth().getUserByPhoneNumber(mobile).then((val) => mobileList.push(mobile)).catch((err) =>
+        promiseArray.push(auth.getUserByPhoneNumber(mobile).then((val) => mobileList.push(mobile)).catch((err) =>
             null
             // console.log(err)
         ))
